@@ -65,7 +65,7 @@ def opponent_ai():
 
 
 def ball_restart():
-    global ball_speed_x, ball_speed_y, score_time, start_count_ball, new_ball_speed_x, new_ball_speed_y
+    global ball_speed_x, ball_speed_y, score_time, start_count_ball, new_ball_speed_x, new_ball_speed_y, opponent, opponent_speed
 
     current_time = pygame.time.get_ticks()
     ball.center = (screen_width / 2, screen_height / 2)
@@ -94,6 +94,10 @@ def ball_restart():
             ball_speed_x = start_ball_speed_x
             ball_speed_y = start_ball_speed_y
             score_time = None
+            opponent_speed = 0
+            opponent.y = screen_height/2
+            player.y = screen_height/2
+
 
 
 def infiniteloop1():
@@ -119,7 +123,7 @@ def infiniteloop1():
                 new_ball_speed_y = 7
             elif msg == 3:
                 new_ball_speed_y = -7
-            else:
+            elif msg == 7 or msg == -7 or msg == 0:
                 opponent_speed = msg
                 print(opponent_speed)
 
