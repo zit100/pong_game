@@ -1,10 +1,11 @@
 import msvcrt
 import socket
 import select
+import random
 
 MAX_MSG_LENGTH = 1024
 SERVER_PORT = 5555
-SERVER_IP = '0.0.0.0'
+SERVER_IP = '192.168.1.110'
 
 
 def print_client_sockets(client_sockets):
@@ -28,9 +29,19 @@ print("Listening for clients...")
 
 client_sockets = []
 messages_to_send = []
+count = 0
 
 while True:
     rlist, wlist, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
+    if len(wlist) == 2:
+        if count == 0:
+            ball_speed_x = 7 * random.choice((1, -1))
+            ball_speed_y = 7 * random.choice((1, -1))
+            if client_sockets_can_read(client_sockets, wlist):
+                for c in client_sockets:
+                    c.send(str(ball_speed_x).encode())
+                    c.send(str(ball_speed_y).encode())
+                count += 1
     for current_socket in rlist:
         if current_socket is server_socket:
             connection, client_address = current_socket.accept()
@@ -39,7 +50,14 @@ while True:
             print_client_sockets(client_sockets)
         else:
             data = current_socket.recv(MAX_MSG_LENGTH).decode()
-            if data == "":
+            if data == "goal":
+                ball_speed_x = 7 * random.choice((1, -1)) + 20
+                ball_speed_y = 7 * random.choice((1, -1)) + 10
+                if client_sockets_can_read(client_sockets, wlist):
+                    for c in client_sockets:
+                        c.send(str(ball_speed_x).encode())
+                        c.send(str(ball_speed_y).encode())
+            elif data == "":
                 print("Connection closed from:", current_socket.getpeername())
                 client_sockets.remove(current_socket)
                 current_socket.close()
@@ -55,5 +73,7 @@ while True:
                     continue
                 c.send(data.encode())
             messages_to_send.remove(message)
+    if len(client_sockets) == 0:
+        break
 
 server_socket.close()
