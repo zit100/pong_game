@@ -111,8 +111,17 @@ def infiniteloop1():
                 new_ball_speed_x, new_ball_speed_y = 7, 7
             elif msg == 273:
                 new_ball_speed_x, new_ball_speed_y = 7, -7
+            elif msg == 27:
+                new_ball_speed_x = 7
+            elif msg == 13:
+                new_ball_speed_x = -7
+            elif msg == 17:
+                new_ball_speed_y = 7
+            elif msg == 3:
+                new_ball_speed_y = -7
             else:
                 opponent_speed = msg
+                print(opponent_speed)
 
 
 def infiniteloop2():
@@ -195,7 +204,7 @@ while True:
     # Handling input
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            my_socket.send("".encode())
+            my_socket.send("exit".encode())
             my_socket.close()
             pygame.quit()
             sys.exit()

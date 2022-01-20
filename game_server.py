@@ -57,7 +57,7 @@ while True:
                     for c in client_sockets:
                         c.send(str(ball_speed_x).encode())
                         c.send(str(ball_speed_y).encode())
-            elif data == "":
+            elif data == "exit":
                 print("Connection closed from:", current_socket.getpeername())
                 client_sockets.remove(current_socket)
                 current_socket.close()
