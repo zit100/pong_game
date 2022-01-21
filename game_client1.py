@@ -1,5 +1,5 @@
 import pygame, sys, random, socket, select, threading
-
+# Oponnent is right side, Player left side
 
 def ball_animation():
     global ball_speed_x, ball_speed_y, player_score, opponent_score, score_time
@@ -86,8 +86,8 @@ def ball_restart():
         ball_speed_x, ball_speed_y = 0, 0
     else:
         if start_count_ball:
-            ball_speed_y = new_ball_speed_x
-            ball_speed_x = new_ball_speed_y
+            ball_speed_x = new_ball_speed_x
+            ball_speed_y = new_ball_speed_y
             score_time = None
         else:
             start_count_ball = True
@@ -106,26 +106,33 @@ def infiniteloop1():
     while True:
         rlist, wlist, xlist = select.select([my_socket], [], [])
         if my_socket in rlist:
-            msg = int(my_socket.recv(MAX_MSG_LENGTH).decode())
-            if msg == 1317:
-                new_ball_speed_x, new_ball_speed_y = -7, 7
-            elif msg == 133:
-                new_ball_speed_x, new_ball_speed_y = -7, -7
-            elif msg == 2717:
-                new_ball_speed_x, new_ball_speed_y = 7, 7
-            elif msg == 273:
-                new_ball_speed_x, new_ball_speed_y = 7, -7
-            elif msg == 27:
-                new_ball_speed_x = 7
-            elif msg == 13:
-                new_ball_speed_x = -7
-            elif msg == 17:
-                new_ball_speed_y = 7
-            elif msg == 3:
-                new_ball_speed_y = -7
-            elif msg == 7 or msg == -7 or msg == 0:
-                opponent_speed = msg
+            message = my_socket.recv(MAX_MSG_LENGTH).decode()
+            if '-' in message:
+                opponent_speed = -7
                 print(opponent_speed)
+            elif not '-' in message and not 'goal' in message:
+                msg = int(message)
+                if msg == 7 or msg == -7 or msg == 0:
+                    opponent_speed = msg
+                    print(opponent_speed)
+                elif msg == 1317:
+                    new_ball_speed_x, new_ball_speed_y = -7, 7
+                elif msg == 133:
+                    new_ball_speed_x, new_ball_speed_y = -7, -7
+                elif msg == 2717:
+                    new_ball_speed_x, new_ball_speed_y = 7, 7
+                elif msg == 273:
+                    new_ball_speed_x, new_ball_speed_y = 7, -7
+                elif msg == 27:
+                    new_ball_speed_x = 7
+                elif msg == 13:
+                    new_ball_speed_x = -7
+                elif msg == 17:
+                    new_ball_speed_y = 7
+                elif msg == 3:
+                    new_ball_speed_y = -7
+                else:
+                    print("message", message)
 
 
 def infiniteloop2():
@@ -142,6 +149,10 @@ MAX_MSG_LENGTH = 1024
 
 my_socket = socket.socket()
 my_socket.connect(('192.168.1.110', 5555))
+
+# Get player side
+side = my_socket.recv(MAX_MSG_LENGTH).decode()
+print(side)
 
 # Get ball first speed
 data = my_socket.recv(1).decode()
@@ -170,12 +181,25 @@ clock = pygame.time.Clock()
 screen_width = 1000
 screen_height = 600
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Pong')
+pygame.display.set_caption('Pong Client 1')
 
 # Game rectangles
 ball = pygame.Rect(screen_width / 2 - 15, screen_height / 2 - 15, 25, 25)
-player = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
-opponent = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
+
+# Sides
+if side == "left":
+    player_score_text_side = screen_width / 2 - 30
+    opponent_score_text_side = screen_width / 2 + 20
+    player = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
+    opponent = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
+elif side == "right":
+    player_score_text_side = screen_width / 2 + 20
+    opponent_score_text_side = screen_width / 2 - 30
+    player = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
+    opponent = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
+else:
+    player = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
+    opponent = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
 
 # Colors
 bg_color = pygame.Color('grey12')
@@ -245,10 +269,10 @@ while True:
         ball_restart()
 
     player_text = game_font.render(f"{player_score}", False, light_grey)
-    screen.blit(player_text, (screen_width / 2 + 20, screen_height / 2 - 20))
+    screen.blit(player_text, (player_score_text_side, screen_height / 2 - 20))
 
     opponent_text = game_font.render(f"{opponent_score}", False, light_grey)
-    screen.blit(opponent_text, (screen_width / 2 - 30, screen_height / 2 - 20))
+    screen.blit(opponent_text, (opponent_score_text_side, screen_height / 2 - 20))
 
     # Updating the window
     pygame.display.flip()

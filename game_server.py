@@ -30,6 +30,7 @@ print("Listening for clients...")
 client_sockets = []
 messages_to_send = []
 count = 0
+side_count = 0
 
 while True:
     rlist, wlist, xlist = select.select([server_socket] + client_sockets, client_sockets, [])
@@ -39,6 +40,11 @@ while True:
             ball_speed_y = 7 * random.choice((1, -1))
             if client_sockets_can_read(client_sockets, wlist):
                 for c in client_sockets:
+                    if side_count == 0:
+                        c.send("right".encode())
+                        side_count += 1
+                    else:
+                        c.send("left".encode())
                     c.send(str(ball_speed_x).encode())
                     c.send(str(ball_speed_y).encode())
                 count += 1
