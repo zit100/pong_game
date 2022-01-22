@@ -1,3 +1,5 @@
+import time
+
 import pygame, sys, random, socket, select, threading
 # Oponnent is right side, Player left side
 
@@ -65,7 +67,8 @@ def opponent_ai():
 
 
 def ball_restart():
-    global ball_speed_x, ball_speed_y, score_time, start_count_ball, new_ball_speed_x, new_ball_speed_y, opponent, opponent_speed
+    global ball_speed_x, ball_speed_y, score_time, start_count_ball, new_ball_speed_x, new_ball_speed_y, opponent, \
+        opponent_speed, player_speed
 
     current_time = pygame.time.get_ticks()
     ball.center = (screen_width / 2, screen_height / 2)
@@ -88,6 +91,8 @@ def ball_restart():
         if start_count_ball:
             ball_speed_x = new_ball_speed_x
             ball_speed_y = new_ball_speed_y
+            opponent_speed = 0
+            player_speed = 0
             score_time = None
         else:
             start_count_ball = True
@@ -95,8 +100,8 @@ def ball_restart():
             ball_speed_y = start_ball_speed_y
             score_time = None
             opponent_speed = 0
-            opponent.y = screen_height/2
-            player.y = screen_height/2
+        opponent.y = screen_height/2
+        player.y = screen_height/2
 
 
 
@@ -108,12 +113,29 @@ def infiniteloop1():
         if my_socket in rlist:
             message = my_socket.recv(MAX_MSG_LENGTH).decode()
             if '-' in message:
+                opponent_speed = 0
+                opponent_speed = -1
+                opponent_speed = -2
+                opponent_speed = -3
+                opponent_speed = -4
+                opponent_speed = -5
+                opponent_speed = -6
                 opponent_speed = -7
                 print(opponent_speed)
             elif not '-' in message and not 'goal' in message:
                 msg = int(message)
-                if msg == 7 or msg == -7 or msg == 0:
-                    opponent_speed = msg
+                if msg == 7:
+                    opponent_speed = 0
+                    opponent_speed = 1
+                    opponent_speed = 2
+                    opponent_speed = 3
+                    opponent_speed = 4
+                    opponent_speed = 5
+                    opponent_speed = 6
+                    opponent_speed = 7
+                    print(opponent_speed)
+                elif  msg == 0:
+                    opponent_speed = 0
                     print(opponent_speed)
                 elif msg == 1317:
                     new_ball_speed_x, new_ball_speed_y = -7, 7
@@ -173,6 +195,8 @@ else:
 messages_to_send = []
 message = ""
 
+time.sleep(0.23)
+
 # General setup
 pygame.init()
 clock = pygame.time.Clock()
@@ -198,8 +222,8 @@ elif side == "right":
     player = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
     opponent = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
 else:
-    player = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
-    opponent = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
+    player = pygame.Rect(screen_width - 20, screen_height / 2 - 70, 10, 100)
+    opponent = pygame.Rect(10, screen_height / 2 - 70, 10, 100)
 
 # Colors
 bg_color = pygame.Color('grey12')
@@ -240,18 +264,18 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
                 player_speed += 7
-                messages_to_send.append(str(player_speed))
+                my_socket.send(str(player_speed).encode())
             if event.key == pygame.K_UP:
                 player_speed -= 7
-                messages_to_send.append(str(player_speed))
+                my_socket.send(str(player_speed).encode())
         # Key is released
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_DOWN:
                 player_speed -= 7
-                messages_to_send.append(str(player_speed))
+                my_socket.send(str(player_speed).encode())
             if event.key == pygame.K_UP:
                 player_speed += 7
-                messages_to_send.append(str(player_speed))
+                my_socket.send(str(player_speed).encode())
 
     ball_animation()
     player_animation()
